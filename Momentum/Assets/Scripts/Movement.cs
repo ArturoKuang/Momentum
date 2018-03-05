@@ -54,12 +54,13 @@ public class Movement : MonoBehaviour {
         accelaration = Vector2.zero;
     }
 
-    void ApplyForce(Vector2 force)
+    public void ApplyForce(Vector2 force)
     {
         if(mass <= 0.0f)
         {
             mass = .01f;
         }
+        Mathf.Clamp(force.magnitude, -10, 10);
         accelaration += force / mass;
     }
 
@@ -96,8 +97,8 @@ public class Movement : MonoBehaviour {
         }
         else if (position.x < -worldSize.x)
         {
-            velocity.x *= -1;
             position.x = -worldSize.x;
+            velocity.x *= -1;
         }
 
         if (position.y > worldSize.y)
@@ -107,8 +108,8 @@ public class Movement : MonoBehaviour {
         }
         else if (position.y < -worldSize.y)
         {
-            velocity.y *= -1;
             position.y = -worldSize.y;
+            velocity.y *= -1;
         }
 
     }

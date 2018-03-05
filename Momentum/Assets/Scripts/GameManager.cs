@@ -30,9 +30,20 @@ public class GameManager : MonoBehaviour {
             returnObjects.Clear();
             quad.retrieve(returnObjects, sceneObjects[i]);
 
-            for(int j = 0; j < returnObjects.Count; j++)
+            foreach(GameObject shape in returnObjects)
             {
-                //run collision 
+                if(shape == sceneObjects[i])
+                {
+                    continue;
+                }
+                else
+                {
+                    if (sceneObjects[i].GetComponent<Polygon>().CollideWith(shape))
+                    {
+                        Debug.Log(sceneObjects[i].name + " hit " + shape.name);
+                        //sceneObjects[i].GetComponent<Movement>().ApplyForce(new Vector2(10.0f, 10.0f));
+                    }
+                }
             }
         }
 		
