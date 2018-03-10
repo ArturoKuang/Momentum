@@ -41,6 +41,7 @@ public class GameManager : MonoBehaviour {
                     if (sceneObjects[i].GetComponent<Polygon>().CollideWith(shape))
                     {
                         Debug.Log(sceneObjects[i].name + " hit " + shape.name);
+                        sceneObjects[i].GetComponent<Polygon>().decouple(shape);
                         //sceneObjects[i].GetComponent<Movement>().ApplyForce(new Vector2(10.0f, 10.0f));
                     }
                 }

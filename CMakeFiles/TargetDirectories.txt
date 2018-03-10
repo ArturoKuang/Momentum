@@ -1,0 +1,3 @@
+C:/Users/Arturo/Desktop/physics/CMakeFiles/Test.dir
+C:/Users/Arturo/Desktop/physics/CMakeFiles/ALL_BUILD.dir
+C:/Users/Arturo/Desktop/physics/CMakeFiles/ZERO_CHECK.dir

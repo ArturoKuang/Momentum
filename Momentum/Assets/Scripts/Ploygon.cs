@@ -11,12 +11,12 @@ public class Polygon : MonoBehaviour
     public List<Vector2> vertices;
     private MTV mtv;
     Vector2 collidePoint;
-
+    Matrix4x4 rotation;
 
     struct MTV
     {
         public Vector2 smallAxis;
-        public double smallestOverlap;
+        public float smallestOverlap;
     }
 
     public List<Vector2> Axes
@@ -58,18 +58,19 @@ public class Polygon : MonoBehaviour
         }
 
         //sets the axes for polygons
-        SetAxes(vertices);
+        //SetAxes(vertices);
 
     }
 
     private void SetAxes(List<Vector2> vertices)
     {
+        axes.Clear();
         for (int i = 0; i < vertices.Count; i++)
         {
             //get the current vertex
-            Vector2 p1 = vertices[i];
+            Vector2 p1 = transform.TransformPoint(vertices[i]);
             //get the next vertex
-            Vector2 p2 = vertices[i + 1 == vertices.Count ? 0 : i + 1];
+            Vector2 p2 = transform.TransformPoint(vertices[i + 1 == vertices.Count ? 0 : i + 1]);
             //edge vector 
             Vector2 edge = p1 - p2;
             //get perpendicular vector
@@ -80,8 +81,9 @@ public class Polygon : MonoBehaviour
 
     public bool CollideWith(GameObject other)
     {
+        SetAxes(vertices);
         Polygon otherPloygon = other.GetComponent<Polygon>();
-        double overlap = double.MaxValue;
+        float overlap = float.MaxValue;
         Vector2 smallest = Vector2.zero; //smallest axes
         List<Vector2> axes2 = other.GetComponent<Polygon>().Axes;
 
@@ -99,8 +101,8 @@ public class Polygon : MonoBehaviour
             Vector2 projA = project(vertices, currentAxis, gameObject.transform);
             Vector2 projB = project(otherPloygon.vertices, currentAxis, other.transform);
 
-            //Debug.DrawLine(projA.x * currentAxis, projA.y * currentAxis, Color.white);
-            //Debug.DrawLine(projB.x * currentAxis, projB.y * currentAxis, Color.blue);
+            Debug.DrawLine(projA.x * currentAxis, projA.y * currentAxis, Color.white);
+            Debug.DrawLine(projB.x * currentAxis, projB.y * currentAxis, Color.blue);
 
             //overlap 
             float o = Overlap(projA, projB);
@@ -110,7 +112,7 @@ public class Polygon : MonoBehaviour
             }
             else
             {
-                if (o < overlap)
+                if (i == 0 || o < overlap)
                 {
                     overlap = o;
                     smallest = currentAxis;
@@ -125,8 +127,8 @@ public class Polygon : MonoBehaviour
             Vector2 projA = project(vertices, currentAxis, gameObject.transform);
             Vector2 projB = project(otherPloygon.vertices, currentAxis, other.transform);
 
-            //Debug.DrawLine(projA.x * currentAxis, projA.y * currentAxis, Color.red);
-            //Debug.DrawLine(projB.x * currentAxis, projB.y * currentAxis, Color.green);
+            Debug.DrawLine(projA.x * currentAxis, projA.y * currentAxis, Color.red);
+            Debug.DrawLine(projB.x * currentAxis, projB.y * currentAxis, Color.green);
 
             //overlap 
             float o = Overlap(projA, projB);
@@ -136,7 +138,7 @@ public class Polygon : MonoBehaviour
             }
             else
             {
-                if (o < overlap)
+                if (i == 0 || o < overlap)
                 {
                     overlap = o;
                     smallest = currentAxis;
@@ -160,45 +162,6 @@ public class Polygon : MonoBehaviour
         return true;
     }
 
-
-    //private void ClosestEdge(Vector2 separationNorm)
-    //{
-    //    //max projection along separationNorm
-    //    double max = double.MinValue;
-    //    //index of farthest vertex
-    //    int index = -1;
-    //    //find farthest vertex in the polygon 
-    //    //along the separation normal
-    //    for(int i = 0; i < vertices.Count; i++)
-    //    {
-    //        double projection = Vector2.Dot(separationNorm, vertices[i]);
-    //        if(projection > max)
-    //        {
-    //            max = projection;
-    //            index = i;
-    //        }
-    //    }
-
-    //    //find the edge that is most perpendicular
-    //    Vector2 v = vertices[index];
-    //    Vector2 v1 = vertices[index + 1 % vertices.Count];
-    //    Vector2 v0 = vertices[index - 1 < 0 ? 0 : index - 1];
-    //    //v1 to v 
-    //    Vector2 l = v - v1;
-    //    //v0 to v 
-    //    Vector2 r = v - v0;
-    //    //normalize
-    //    l.Normalize();
-    //    r.Normalize();
-    //    //the edge is most perpendicular
-    //    //to n will have a dot product closer to zero
-    //    if (Vector2.Dot(r, separationNorm) <= Vector2.Dot(l, separationNorm))
-    //    {
-    //        return
-    //    }
-
-    //}
-
     private Vector2 PointOfCollision(GameObject other, Vector2 MTV)
     {
         //edge collision tolerance
@@ -209,6 +172,7 @@ public class Polygon : MonoBehaviour
         float currentMin;
         float dotProd;
         int numPoint = vertices.Count;
+
         Vector2 currentPoint;
         Vector2 currentPos = transform.position;
         //other colliding polygon
@@ -216,7 +180,7 @@ public class Polygon : MonoBehaviour
 
         //begin by setting the current min to the first point of
         //currentPoint min to the 1st point
-        currentPoint = vertices[0] + currentPos;
+        currentPoint = transform.TransformPoint(vertices[0]);
         currentMin = Vector2.Dot(currentPoint, MTV);
         closestPoints1.Add(currentPoint);
 
@@ -224,7 +188,7 @@ public class Polygon : MonoBehaviour
         for (int i = 1; i < numPoint; i++)
         {
             //translate to world space
-            currentPoint = vertices[i] + currentPos;
+            currentPoint = transform.TransformPoint(vertices[i]);
             //calc distance towars object 2
             dotProd = Vector2.Dot(currentPoint, MTV);
             //if the current point is the same distance in the direction
@@ -255,20 +219,21 @@ public class Polygon : MonoBehaviour
         numPoint = otherPolygon.vertices.Count;
         Vector2 otherPos = other.transform.position;
         List<Vector2> otherVertices = otherPolygon.vertices;
+        MTV otherMtv = other.GetComponent<Polygon>().mtv;
 
         //begin by setting the current max of the first 
         //point of the 2nd polygon 
-        currentPoint = otherVertices[0] + otherPos;
-        currentMax = Vector2.Dot(currentPoint, MTV);
+        currentPoint = transform.TransformPoint(otherVertices[0]);
+        currentMax = Vector2.Dot(currentPoint, otherMtv.smallAxis);
         closestPoint2.Add(currentPoint);
 
         //loops through remaining points
         for (int i = 1; i < numPoint; i++)
         {
             //translate to world space
-            currentPoint = otherVertices[i] + currentPos;
+            currentPoint = transform.TransformPoint(otherVertices[i]);
             //calc distance towars object 2
-            dotProd = Vector2.Dot(currentPoint, MTV);
+            dotProd = Vector2.Dot(currentPoint, otherMtv.smallAxis);
             //if the current point is the same distance in the direction
             //of obj2 along the MTV
             if (Mathf.Abs(dotProd - currentMax) < Mathf.Epsilon + tolerance)
@@ -292,17 +257,17 @@ public class Polygon : MonoBehaviour
         }
         //find the two inner points
         //if needed
-        Vector2 edge = new Vector2(-MTV.y, -MTV.x);
+        Vector2 edge = new Vector2(-MTV.y, MTV.x);
         closestPoints1.AddRange(closestPoint2);
         //determines the min and max 
         currentMin = currentMax = Vector2.Dot(closestPoints1[0], edge);
         int minIndex, maxIndex;
         minIndex = maxIndex = 0;
         numPoint = closestPoints1.Count;
-        for(int i = 0; i < numPoint; i++)
+        for (int i = 0; i < numPoint; i++)
         {
             dotProd = Vector2.Dot(closestPoints1[i], edge);
-            if(dotProd < currentMin)
+            if (dotProd < currentMin)
             {
                 currentMin = dotProd;
                 minIndex = i;
@@ -371,6 +336,36 @@ public class Polygon : MonoBehaviour
     private Vector2 perp(Vector2 edge)
     {
         return new Vector2(-edge.y, edge.x);
+    }
+
+
+    public void decouple(GameObject other)
+    {
+        Movement r1 = gameObject.GetComponent<Movement>();
+        Movement r2 = other.GetComponent<Movement>();
+        float individual1 = Mathf.Abs(Vector2.Dot(r1.velocity, mtv.smallAxis));
+        float individual2 = Mathf.Abs(Vector2.Dot(r2.velocity, mtv.smallAxis));
+
+        float sum = individual1 + individual2;
+        float ratio1 = individual1 / sum;
+        float ratio2 = individual2 / sum;
+
+        float mag1, mag2;
+        mag1 = ratio1 * mtv.smallestOverlap;
+        mag2 = ratio2 * mtv.smallestOverlap;
+
+        r1.position += mag1 * mtv.smallAxis;
+        r2.position -= mag2 * mtv.smallAxis;
+    }
+
+    public bool isResolutionNeeded(GameObject other)
+    {
+        Vector2 pos = transform.position;
+        Vector2 otherPos = other.transform.position;
+        Vector2 radius1 = collidePoint - pos;
+        Vector2 radius2 = collidePoint - otherPos;
+
+        //angular
     }
 
     void OnDrawGizmos()

@@ -1,0 +1,35 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <ClCompile Include="C:\Users\Arturo\Desktop\Test\main.cpp">
+      <Filter>source</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="C:\Users\Arturo\Desktop\Test\GLIncludes.h">
+      <Filter>header</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <CustomBuild Include="C:\Users\Arturo\Desktop\Test\CMakeLists.txt" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="C:\Users\Arturo\Desktop\Test\FragmentShader.glsl">
+      <Filter>shaders</Filter>
+    </None>
+    <None Include="C:\Users\Arturo\Desktop\Test\VertexShader.glsl">
+      <Filter>shaders</Filter>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <Filter Include="header">
+      <UniqueIdentifier>{3FF6030F-EBEC-3AEB-93AE-D67596BEFC9B}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="shaders">
+      <UniqueIdentifier>{785592C9-03E1-3C4B-95F5-2D838050D5CC}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="source">
+      <UniqueIdentifier>{3CE70E91-E9BD-3657-86B3-9F950C35AC8A}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+</Project>
